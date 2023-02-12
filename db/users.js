@@ -6,59 +6,74 @@ async function createUser({
   username,
   password 
 }) {
-  
-  const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
+  try {
+    const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
 
-  const { rows: [ user ] } = await client.query(`
-    INSERT INTO users(username, password)
-    VALUES ($1, $2)
-    ON CONFLICT (username) DO NOTHING
-    RETURNING *;
-  `, [username, hashedPassword]);
+    const { rows: [ user ] } = await client.query(`
+      INSERT INTO users(username, password)
+      VALUES ($1, $2)
+      ON CONFLICT (username) DO NOTHING
+      RETURNING *;
+    `, [username, hashedPassword]);
 
-  delete user.password;
+    delete user.password;
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error(error)
+  }
 } 
 
 async function getUser({ 
   username,
   password 
 }) {
-  const user = await getUserByUsername(username);
-  const hashedPassword = user.password;
-  
-  let passwordsMatch = await bcrypt.compare(password, hashedPassword) 
-    if (passwordsMatch) {
-      delete user.password;
-      return user;
-    } else {
-      return false;
+  try{
+    const user = await getUserByUsername(username);
+    const hashedPassword = user.password;
+    
+    let passwordsMatch = await bcrypt.compare(password, hashedPassword) 
+      if (passwordsMatch) {
+        delete user.password;
+        return user;
+      } else {
+        return false;
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 
 async function getUserById(userId) {
-  const { rows: [ user ] } = await client.query(`
-    SELECT id, username
-    FROM users
-    WHERE id=${ userId };
-  `);
+  try{
+    const { rows: [ user ] } = await client.query(`
+      SELECT id, username
+      FROM users
+      WHERE id=${ userId };
+    `);
 
-  if (!user) {
-    return null;
-  } 
+    if (!user) {
+      return null;
+    } 
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 async function getUserByUsername(username) {
-  const { rows: [user] } = await client.query(`
-    SELECT *
-    FROM users
-    WHERE username=$1;
-  `, [username]);
+  try{
+    const { rows: [user] } = await client.query(`
+      SELECT *
+      FROM users
+      WHERE username=$1;
+    `, [username]);
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 module.exports = {
