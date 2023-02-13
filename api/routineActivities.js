@@ -14,7 +14,7 @@ router.patch('/:routineActivityId', requireUser, async (req, res, next) => {
         count,
         duration
     } = req.body;
-    const id = req.params.routineActivityId;
+    const id = parseInt(req.params.routineActivityId);
   
     try {
         const routineActivityById = await getRoutineActivityById(id);
@@ -40,11 +40,10 @@ router.patch('/:routineActivityId', requireUser, async (req, res, next) => {
 
 // DELETE /api/routine_activities/:routineActivityId
 router.delete('/:routineActivityId', requireUser, async (req, res, next) => {
-    const id = req.params.routineActivityId;
-
     try {
+        const id = parseInt(req.params.routineActivityId);
         const routineActivityById = await getRoutineActivityById(id);
-        const routineById = await getRoutineById(routineActivityById.id);
+        const routineById = await getRoutineById(routineActivityById.routineId);
 
         if (routineById.creatorId !== req.user.id) {
             res.status(403);

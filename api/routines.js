@@ -7,7 +7,7 @@ const { getAllRoutines,
     updateRoutine,
     destroyRoutine,
     addActivityToRoutine,
-    getRoutineActivityById
+    getRoutineActivitiesByRoutine
 } = require("../db")
 
 
@@ -51,7 +51,7 @@ router.patch('/:routineId', requireUser, async (req, res, next) => {
         name,
         goal
     } = req.body;
-    const id = req.params.routineId;
+    const id = parseInt(req.params.routineId);
 
     try {
         const routineById = await getRoutineById(id);
@@ -93,7 +93,7 @@ router.delete('/:routineId', requireUser, async (req, res, next) => {
     } catch ({ name, message }) {
         next({ name, message })
     }
-});
+})
 
 
 // POST /api/routines/:routineId/activities
@@ -106,8 +106,16 @@ router.post('/:routineId/activities', requireUser, async (req, res, next) => {
     } = req.body;
 
     try {
-        const _activityId = await getRoutineActivityById (activityId);
-        if (_activityId) {
+        const routineActivities = await getRoutineActivitiesByRoutine({ id: routineId })
+        let activityFound = false;
+        routineActivities.forEach(routineActivity => {
+            if (routineActivity.activityId === activityId) {
+                activityFound = true;
+            }
+        });
+
+
+        if (activityFound) {
             next({
                 name: "DuplicateRoutineActivityError",
                 message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`

@@ -49,7 +49,7 @@ router.post('/', requireUser, async (req, res, next) => {
 // PATCH /api/activities/:activityId
 router.patch('/:activityId', requireUser, async (req, res, next) => {
     const { name, description } = req.body;
-    const id = req.params.activityId;
+    const id = parseInt(req.params.activityId);
 
     try {
         const activityById = await getActivityById(id);
@@ -80,7 +80,7 @@ router.patch('/:activityId', requireUser, async (req, res, next) => {
 
 // GET /api/activities/:activityId/routines
 router.get('/:activityId/routines', async (req, res, next) => {
-    const id = req.params.activityId;
+    const id = parseInt(req.params.activityId);
 
     try {
         const activityById = await getActivityById(id);
